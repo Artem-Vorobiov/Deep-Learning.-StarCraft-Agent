@@ -1,24 +1,28 @@
 import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
-from sc2.constants import COMMANDCENTER, SCV, SUPPLYDEPOT, REFINERY, VESPENEGEYSER, MINERALFIELD
+from sc2.constants import COMMANDCENTER, SCV, SUPPLYDEPOT, REFINERY, VESPENEGEYSER, MINERALFIELD, BARRACKS
 from sc2 import position
 
 MAX_WORKERS = 60
+adjusted_time_set = set()
 
 class NN(sc2.BotAI):
     async def on_step(self, iteration):
+        #   Adjusted TimeChecking Function
         self.time = (self.state.game_loop/22.4) / 60
-        print('Time:',self.time)
+        adjusted_time = round(self.time, 1)
+        if adjusted_time not in adjusted_time_set:
+            adjusted_time_set.add(adjusted_time)
+            print(adjusted_time)
 
         # what to do every step
-        await self.distribute_workers()  # in sc2/bot_ai.py
-        await self.build_scv()           # Build our worker who will mine minerals
+        await self.distribute_workers()  
+        await self.build_scv()           
         await self.build_supply_depot()
         await self.build_refinery()
-        await self.expand()             #   NEW
-
-################################################################################################
+        await self.expand()
+        await self.build_barrack()          #   NEW
 
     async def expand(self):
         if self.units(COMMANDCENTER).amount < 2:
@@ -32,62 +36,51 @@ class NN(sc2.BotAI):
 
 ################################################################################################
 
+    async def build_barrack(self):
+        for cc in self.units(COMMANDCENTER).ready:
+            if self.units(BARRACKS).amount < 2 and self.time > 1.5:
+                if self.can_afford(BARRACKS) and not self.already_pending(BARRACKS):
+                    print('\n\t\t\t\t We are in BUILD BARRACKS method')
+                    await self.build(BARRACKS, near = cc.position.towards(self.game_info.map_center, 10))
+
 ################################################################################################
-#               The method has been changed. I've added new conditions.
+
+
     async def build_refinery(self):
         for cc in self.units(COMMANDCENTER):
-            print('\n Im inside REFINERY !!!')
-            if self.can_afford(REFINERY) and not self.already_pending(REFINERY) and self.units(REFINERY).amount < 1:
+            if self.can_afford(REFINERY) and not self.already_pending(REFINERY) and self.units(REFINERY).amount < 1 and self.time > 0.5:
                 try:
-                    print('\n\t\t\t FIRST CONDITION')
-                    #   Found Geyser near CommandCenter
                     vgs = self.state.vespene_geyser.closer_than(20.0, cc)
-                        #   Iterate through Geyser near CC
                     for vg in vgs:
-                        #   Check If REFINERY already exists on Geyser Spot, If so break
                         if self.units(REFINERY).closer_than(1.0,vg).exists:
                             break
-                        #   If not exists, then select worker and use him for building Refinery
                         worker = self.select_build_worker(vg.position)
                         await self.do(worker.build(REFINERY, vg))
                 except Exception as e:
-                    print(e)
                     pass
 
             elif self.can_afford(REFINERY) and self.time > 1.45 and self.units(REFINERY).amount < 3 and not self.already_pending(REFINERY):
                 try:
-                    print('\n\t\t\t SECOND CONDITION')
-                    #   Found Geyser near CommandCenter
                     vgs = self.state.vespene_geyser.closer_than(20.0, cc)
-                        #   Iterate through Geyser near CC
                     for vg in vgs:
-                        #   Check If REFINERY already exists on Geyser Spot, If so break
                         if self.units(REFINERY).closer_than(1.0,vg).exists:
                             break
-                        #   If not exists, then select worker and use him for building Refinery
                         worker = self.select_build_worker(vg.position)
                         await self.do(worker.build(REFINERY, vg))
                 except Exception as e:
-                    print(e)
                     pass
 
             elif self.can_afford(REFINERY) and self.time > 4 and self.units(REFINERY).amount < 4 and not self.already_pending(REFINERY):
                 try:
-                    print('\n\t\t\t THIRD CONDITION')
-                    #   Found Geyser near CommandCenter
                     vgs = self.state.vespene_geyser.closer_than(20.0, cc)
-                        #   Iterate through Geyser near CC
                     for vg in vgs:
-                        #   Check If REFINERY already exists on Geyser Spot, If so break
                         if self.units(REFINERY).closer_than(1.0,vg).exists:
                             break
-                        #   If not exists, then select worker and use him for building Refinery
                         worker = self.select_build_worker(vg.position)
                         await self.do(worker.build(REFINERY, vg))
                 except Exception as e:
-                    print(e)
                     pass
-################################################################################################
+
 
     async def build_scv(self):
         if self.units(SCV).amount <= MAX_WORKERS:
@@ -100,7 +93,7 @@ class NN(sc2.BotAI):
         SD = self.units(COMMANDCENTER)
         if self.supply_used > 0.7*self.supply_cap:
             if self.can_afford(SUPPLYDEPOT) and not self.already_pending(SUPPLYDEPOT):
-                await self.build(SUPPLYDEPOT, near = SD.first.position.towards(self.game_info.map_center, 6))
+                await self.build(SUPPLYDEPOT, near = SD.first.position.towards(self.game_info.map_center, 4))
 
 
 

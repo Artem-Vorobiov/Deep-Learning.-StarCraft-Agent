@@ -13,9 +13,7 @@ class NN(sc2.BotAI):
         # what to do every step
         await self.distribute_workers()  # in sc2/bot_ai.py
         await self.build_scv()			 # Build our worker who will mine minerals
-
-# NEW
-        await self.build_supply_depot()
+        await self.build_supply_depot()  #  NEW
 
 
     async def build_scv(self):
@@ -25,7 +23,8 @@ class NN(sc2.BotAI):
     			# print('Passed conditions and train - {}'.format(self.do(cc.train(SCV))))
 
 
-# NEW
+############################################################################################
+
     async def build_supply_depot(self):
         SD = self.units(COMMANDCENTER)
         SD_List = list(SD)
@@ -63,6 +62,8 @@ class NN(sc2.BotAI):
             print('\n\t MAP SIZE TYPE: ', type(self.game_info.map_size))    #   <class 'sc2.position.Size'>
             print('\n\t MAP CENTER: ', self.game_info.map_center)           #   (100.0, 72.0)
             print('\n\t MAP CENTER TYPE: ', type(self.game_info.map_center))#   <class 'sc2.position.Point2'>
+
+############################################################################################
 
 
 run_game(maps.get("AbyssalReefLE"), [
