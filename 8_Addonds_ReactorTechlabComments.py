@@ -2,8 +2,10 @@ import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 from sc2.constants import COMMANDCENTER, SCV, SUPPLYDEPOT, REFINERY, VESPENEGEYSER, MINERALFIELD, BARRACKS, FACTORY, \
-STARPORT, BARRACKSREACTOR, STARPORTREACTOR, TECHLAB
+STARPORT, BARRACKSREACTOR, BARRACKSTECHLAB, STARPORTREACTOR, STARPORTTECHLAB, FACTORYTECHLAB, FACTORYREACTOR
+from sc2.game_data import UpgradeData
 from sc2 import position
+from sc2.ids.ability_id import AbilityId
 
 MAX_WORKERS = 60
 adjusted_time_set = set()
@@ -31,11 +33,11 @@ class NN(sc2.BotAI):
     async def expand(self):
         if self.units(COMMANDCENTER).amount < 2:
             if self.can_afford(COMMANDCENTER) and not self.already_pending(COMMANDCENTER):
-                print('\n EXPANDING FIRST CONDITION ... ')
+                # print('\n EXPANDING FIRST CONDITION ... ')
                 await self.expand_now()
         elif self.units(COMMANDCENTER).amount < 3.5 and self.time >= 4:
             if self.can_afford(COMMANDCENTER) and not self.already_pending(COMMANDCENTER):
-                print('\n EXPANDING  second condition... ')
+                # print('\n EXPANDING  second condition... ')
                 await self.expand_now()
 
 ############################################################################################
@@ -54,14 +56,24 @@ class NN(sc2.BotAI):
         if self.units(BARRACKS).exists:
             if self.can_afford(FACTORY) and not self.already_pending(FACTORY) and self.units(FACTORY).amount < 1:
                 await self.build(FACTORY, near = cc.position.towards(self.game_info.map_center, 5))
-
+        if self.units(FACTORY).ready:
+            for f in self.units(FACTORY):
+                await self.do(f.build(FACTORYREACTOR))
+                # print('\n\n\n Bigan FACTORYREACTOR Building ...')
 
     async def build_barrack(self):
         for cc in self.units(COMMANDCENTER).ready:
-            if self.units(BARRACKS).amount < 1 and self.time > 1.6:
+            if self.units(BARRACKS).amount < 2 and self.time > 1.6:
                 if self.can_afford(BARRACKS) and not self.already_pending(BARRACKS):
-                    print('\n\t\t\t\t We are in BUILD BARRACKS method')
+                    # print('\n\t\t\t\t We are in BUILD BARRACKS method')
                     await self.build(BARRACKS, near = cc.position.towards(self.game_info.map_center, 10))
+            elif self.units(BARRACKS).ready:
+                for BR in self.units(BARRACKS):
+                    # if not BR.abilityId.BUILD_TECHLAB_BARRACKS:
+                    if not self._game_data.upgrades.research_ability(BARRACKSTECHLAB):
+                        print('\n\t\t\t\t PASS')
+                        await self.do(BR.build(BARRACKSTECHLAB))
+
 
 
     async def build_refinery(self):

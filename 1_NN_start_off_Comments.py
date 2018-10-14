@@ -47,6 +47,12 @@ class NN(sc2.BotAI):
 
 
                 ###############                     ###############
+#   Exploring game_data.py Class UpgradeData --> trying to extract usefull data
+
+        print('\n\t\t   RESEARCH_ABILITY ')
+        print(type(self._game_data.upgrades))           #   class "Dict"
+        for www in (self._game_data.upgrades).items():  #   Iterate throught dict
+            print('\n\n',www)                           #   (292, <sc2.game_data.UpgradeData object at 0x1060b3940>)
 
 
 run_game(maps.get("AbyssalReefLE"), [
