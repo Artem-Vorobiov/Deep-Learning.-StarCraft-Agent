@@ -59,8 +59,10 @@ class NN(sc2.BotAI):
 ###############     UpgradeData(object)      ###############
 
     #### Exploring game_data.py Class UpgradeData --> trying to extract usefull data
+
         # print('\n\t\t   RESEARCH_ABILITY ')
         # print(type(self._game_data.upgrades))           #   class "Dict"
+
         # for www in (self._game_data.upgrades).items():  #   Iterate throught dict
         #     print('\n\n',www)                           #   (292, <sc2.game_data.UpgradeData object at 0x1060b3940>)
 
@@ -68,13 +70,16 @@ class NN(sc2.BotAI):
         #     print('\n\n',xxx)                           #   <sc2.game_data.UpgradeData object at 0x1060c5898>
 
     #### Iterating through methods insidde class UpgradeData(object) and class AbilityData(object)
+
         # for xxx in (self._game_data.upgrades).values():
         #     if xxx.research_ability != None:
+
         #         print('\n inside Values() Type', xxx.name)      #   CarrierLaunchSpeedUpgrade (first iteration) - and so on - GlialReconstitution, TunnelingClaws .... DiggingClaws(last) 
         #         print('\n Inside values()', type(xxx.name))     #   <class 'str'> (first iteration) 
 
         #         print('\n inside Values() Type', xxx.research_ability)      #   AbilityData(name=ResearchInterceptorLaunchSpeedUpgrade)
         #         print('\n Inside values()', type(xxx.research_ability))     #   <class 'sc2.game_data.AbilityData'>
+
         #         print('\n inside Values() Type', xxx.research_ability.is_free_morph)        #   False
         #         print('\n inside Values() Type', type(xxx.research_ability.is_free_morph))  #   <class 'bool'>
 
@@ -87,14 +92,19 @@ class NN(sc2.BotAI):
 #         print(self._game_data.abilities)                  #   Giant Dict, pull out all data from ability_id.py
 # #   {1: AbilityData(name=Smart), 2: AbilityData(name=Taunt), .....  3771: AbilityData(name=OverlordTransportLoad), 3773: AbilityData(name=OverlordTransportUnload)}  
 #         print(type(self._game_data.abilities))            #   <class 'dict'>
+
 #         # for ab in self._game_data.abilities.items():
 #         #     print('\n\t {}'.format(ab))                   #     (1, AbilityData(name=Smart)) ; (2, AbilityData(name=Taunt))
+
 #         for abVal in self._game_data.abilities.values():
 #             # print('\n\t {}'.format(abVal.name))
+
 #             print('\n\t {}'.format(abVal.id))               #   AbilityId.SMART
 #             print('\n\t {}'.format(type(abVal.id)))         #   <enum 'AbilityId'>
+
 #             print('\n\t {}'.format(abVal.cost))             #   Cost(0, 0)
 #             print('\n\t {}'.format(type(abVal.cost)))       #   <class 'sc2.game_data.Cost'>
+
 #             print('\n\t {}'.format(abVal.id_exists))        #   <function AbilityData.id_exists at 0x105498488>
 #             print('\n\t {}'.format(type(abVal.id_exists)))  #   <class 'function'>
 

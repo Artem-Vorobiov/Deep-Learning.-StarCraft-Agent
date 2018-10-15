@@ -11,6 +11,11 @@ MAX_WORKERS = 60
 adjusted_time_set = set()
 
 class NN(sc2.BotAI):
+
+    def __init__(self):
+        self.tags = []
+
+
     async def on_step(self, iteration):
         #   Adjusted TimeChecking Function
         self.time = (self.state.game_loop/22.4) / 60
@@ -65,14 +70,16 @@ class NN(sc2.BotAI):
         for cc in self.units(COMMANDCENTER).ready:
             if self.units(BARRACKS).amount < 2 and self.time > 1.6:
                 if self.can_afford(BARRACKS) and not self.already_pending(BARRACKS):
-                    # print('\n\t\t\t\t We are in BUILD BARRACKS method')
+                    print('\n\t\t\t\t We are in BUILD BARRACKS method')
                     await self.build(BARRACKS, near = cc.position.towards(self.game_info.map_center, 10))
-            elif self.units(BARRACKS).ready:
-                for BR in self.units(BARRACKS):
-                    # if not BR.abilityId.BUILD_TECHLAB_BARRACKS:
-                    if not self._game_data.upgrades.research_ability(BARRACKSTECHLAB):
-                        print('\n\t\t\t\t PASS')
+                    
+                elif self.units(BARRACKS).ready:
+                    for BR in self.units(BARRACKS):
                         await self.do(BR.build(BARRACKSTECHLAB))
+                        print('\n\t\t\t\t BARRACKSTECHLAB')
+                        self.tags.append(BR.tag)
+                        print('\nTAGS',  self.tags)
+
 
 
 
