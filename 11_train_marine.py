@@ -2,18 +2,34 @@ import sc2
 from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 from sc2.constants import COMMANDCENTER, SCV, SUPPLYDEPOT, REFINERY, VESPENEGEYSER, MINERALFIELD, BARRACKS, FACTORY, \
-STARPORT, BARRACKSREACTOR, BARRACKSTECHLAB, STARPORTREACTOR, STARPORTTECHLAB, FACTORYTECHLAB, FACTORYREACTOR
+STARPORT, BARRACKSREACTOR, BARRACKSTECHLAB, STARPORTREACTOR, STARPORTTECHLAB, FACTORYTECHLAB, FACTORYREACTOR, \
+MARAUDER, MARINE
 from sc2.game_data import UpgradeData
 from sc2 import position
 from sc2.ids.ability_id import AbilityId
+from sc2.game_info import Ramp
 
 MAX_WORKERS = 60
 adjusted_time_set = set()
+
+#   FINDIGN: Found how to reach the game_info.py class Ramp(object)
+#            self.main_base_ramp.top_center
+#            self.main_base_ramp._nearby
+#            self.main_base_ramp._top_edge_12
+#            self.main_base_ramp.lower
+
+#           Thats takes from:    
+#        def main_base_ramp(self):
+        #     return min(
+        #     self.game_info.map_ramps,
+        #     key=(lambda r: self.start_location.distance_to(r.top_center))
+        # )
 
 class NN(sc2.BotAI):
 
     def __init__(self):
         self.tags = set()
+        self.barrack_morph = {}
 
 
     async def on_step(self, iteration):
@@ -34,6 +50,8 @@ class NN(sc2.BotAI):
         await self.build_factory()
         await self.build_starport()     #   NEW
         await self.improve_barracks()
+        # await self.train_marauder()
+        # await self.train_marine()
 
 
     async def expand(self):
@@ -52,7 +70,7 @@ class NN(sc2.BotAI):
         cc = self.units(COMMANDCENTER).first
         if self.units(FACTORY).exists and self.units(STARPORT).amount < 2:
             if self.can_afford(STARPORT) and not self.already_pending(STARPORT):
-                await self.build(STARPORT, near = cc.position.towards(self.game_info.map_center, 7))
+                await self.build(STARPORT, near = cc.position.towards(self.game_info.map_center, 11))
 
 ############################################################################################
 
@@ -61,10 +79,10 @@ class NN(sc2.BotAI):
         cc = self.units(COMMANDCENTER).first
         if self.units(BARRACKS).exists:
             if self.can_afford(FACTORY) and not self.already_pending(FACTORY) and self.units(FACTORY).amount < 1:
-                await self.build(FACTORY, near = cc.position)
-        if self.units(FACTORY).ready:
-            for f in self.units(FACTORY):
-                await self.do(f.build(FACTORYREACTOR))
+                await self.build(FACTORY, near = cc.position.towards(self.main_base_ramp.top_center, 8))
+        # if self.units(FACTORY).ready:
+        #     for f in self.units(FACTORY):
+        #         await self.do(f.build(FACTORYREACTOR))
                 # print('\n\n\n Bigan FACTORYREACTOR Building ...')
 
     async def build_barrack(self):
@@ -81,12 +99,24 @@ class NN(sc2.BotAI):
                 print('\n\t\t\t\t BARRACKSTECHLAB')
                 self.tags.add(BR.tag)
                 print('\nTAGS',  self.tags)
-            else:
+            elif not self.units(BARRACKSREACTOR).exists:
                 await self.do(BR.build(BARRACKSREACTOR))
                 print('\n\t\t\t\t BARRACKSREACTOR')
                 self.tags.add(BR.tag)
                 print('\nTAGS',  self.tags)
 
+
+    async def train_marauder(self):
+        if self.units(BARRACKSTECHLAB).ready:
+            for brlab in self.units(BARRACKS):
+                if self.can_afford(MARAUDER) and not self.already_pending(MARAUDER):
+                    await self.do(brlab.train(MARAUDER))
+
+    async def train_marine(self):
+        if self.units(BARRACKSREACTOR).ready:
+            for brlab in self.units(BARRACKS):
+                if not self.already_pending(MARINE):
+                    await self.do(brlab.train(MARINE))
 
 
 
@@ -140,7 +170,7 @@ class NN(sc2.BotAI):
         SD = self.units(COMMANDCENTER)
         if self.supply_used > 0.7*self.supply_cap:
             if self.can_afford(SUPPLYDEPOT) and not self.already_pending(SUPPLYDEPOT):
-                await self.build(SUPPLYDEPOT, near = SD.first.position.towards(self.game_info.map_center, 4))
+                await self.build(SUPPLYDEPOT, near = SD.first.position.towards(self.main_base_ramp.top_center, 4))
 
 
 
