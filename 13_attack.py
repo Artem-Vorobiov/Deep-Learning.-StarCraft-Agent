@@ -9,6 +9,10 @@ from sc2 import position
 from sc2.ids.ability_id import AbilityId
 from sc2.game_info import Ramp
 
+import math
+
+import random
+
 MAX_WORKERS = 60
 adjusted_time_set = set()
 
@@ -53,6 +57,34 @@ class NN(sc2.BotAI):
         await self.train_soldiers()     #   Train MARAUDER and MARINE
         # await self.train_marauder()
         # await self.train_marine()
+        await self.attack_enemy_g()
+        # await self.select_target()
+
+
+    def select_target(self):
+        # target = self.known_enemy_structures
+        # if target.exists:
+        #     return target.random.position
+
+        # target = self.known_enemy_units
+        # if target.exists:
+        #     return target.random.position
+
+        # return self.state.mineral_field.random.position
+        print('\n Inside Function ===>', self.enemy_start_locations[0].position)
+        return self.enemy_start_locations[0].position
+
+
+    async def attack_enemy_g(self):
+        target = self.select_target()   #   <coroutine object NN.select_target at 0x105ae4258>
+        print('\n TARGET', target)
+        # print('\n TARGET POSITION', target.position)
+
+        if self.units(MARAUDER).amount >= 6 and self.units(MARINE).amount >= 7:
+            for m in self.units(MARAUDER).idle:
+                await self.do(m.attack(target))
+            for mn in self.units(MARINE).idle:
+                await self.do(mn.attack(target))
 
 
     async def expand(self):
@@ -88,7 +120,7 @@ class NN(sc2.BotAI):
         for cc in self.units(COMMANDCENTER).ready:
             if self.units(BARRACKS).amount < 2 and self.time > 1.6:
                 if self.can_afford(BARRACKS) and not self.already_pending(BARRACKS):
-                    print('\n\t\t\t\t We are in BUILD BARRACKS method')
+                    # print('\n\t\t\t\t We are in BUILD BARRACKS method')
                     await self.build(BARRACKS, near = cc.position.towards(self.game_info.map_center, 10))
     
 ############################################################################################
@@ -104,16 +136,16 @@ class NN(sc2.BotAI):
         if self.units(BARRACKSTECHLAB).ready:
             for brlab in self.units(BARRACKS).noqueue:
                 if brlab.tag in self.tags:
-                    print('\n Took one BARRACKS: {}'.format(brlab.tag))
+                    # print('\n Took one BARRACKS: {}'.format(brlab.tag))
                     if self.can_afford(MARAUDER):
                         if not self.already_pending(MARAUDER):
                             await self.do(brlab.train(MARAUDER))
-                            print('\n Training MARAUDER: {}'.format(brlab.tag))
+                            # print('\n Training MARAUDER: {}'.format(brlab.tag))
                 else:
                     if self.can_afford(MARINE):
                         if not self.already_pending(MARINE):
                             await self.do(brlab.train(MARINE))
-                            print('\n Training MARINE: {}'.format(brlab.tag))
+                            # print('\n Training MARINE: {}'.format(brlab.tag))
 
 ############################################################################################
 
@@ -190,5 +222,5 @@ class NN(sc2.BotAI):
 
 run_game(maps.get("AbyssalReefLE"), [
     Bot(Race.Terran, NN()),
-    Computer(Race.Terran, Difficulty.Easy)
+    Computer(Race.Terran, Difficulty.Medium)
 ], realtime=False)

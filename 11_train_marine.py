@@ -48,10 +48,10 @@ class NN(sc2.BotAI):
         await self.expand()
         await self.build_barrack()
         await self.build_factory()
-        await self.build_starport()     #   NEW
+        await self.build_starport()     
         await self.improve_barracks()
-        # await self.train_marauder()
-        # await self.train_marine()
+        await self.train_marauder()
+        await self.train_marine()           #   NEW
 
 
     async def expand(self):
@@ -112,11 +112,15 @@ class NN(sc2.BotAI):
                 if self.can_afford(MARAUDER) and not self.already_pending(MARAUDER):
                     await self.do(brlab.train(MARAUDER))
 
+############################################################################################
+
     async def train_marine(self):
         if self.units(BARRACKSREACTOR).ready:
             for brlab in self.units(BARRACKS):
                 if not self.already_pending(MARINE):
                     await self.do(brlab.train(MARINE))
+
+############################################################################################
 
 
 

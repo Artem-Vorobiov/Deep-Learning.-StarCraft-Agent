@@ -53,6 +53,14 @@ class NN(sc2.BotAI):
         await self.train_soldiers()     #   Train MARAUDER and MARINE
         # await self.train_marauder()
         # await self.train_marine()
+        await self.attack_enemy_g()
+
+    async def attack_enemy_g(self):
+        if self.units(MARAUDER).amount >= 5 and self.units(MARINE).amount >= 5:
+            for m in self.units(MARAUDER):
+                await m.attack()
+            for mn in self.units(MARINE):
+                await m.attack()
 
 
     async def expand(self):

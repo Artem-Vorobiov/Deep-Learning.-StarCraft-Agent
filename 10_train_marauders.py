@@ -47,9 +47,9 @@ class NN(sc2.BotAI):
         await self.expand()
         await self.build_barrack()
         await self.build_factory()
-        await self.build_starport()     #   NEW
+        await self.build_starport()     
         await self.improve_barracks()
-        await self.train_marauder()
+        await self.train_marauder()     #   NEW
 
 
     async def expand(self):
