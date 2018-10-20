@@ -3,7 +3,7 @@ from sc2 import run_game, maps, Race, Difficulty
 from sc2.player import Bot, Computer
 from sc2.constants import COMMANDCENTER, SCV, SUPPLYDEPOT, REFINERY, VESPENEGEYSER, MINERALFIELD, BARRACKS, FACTORY, \
 STARPORT, BARRACKSREACTOR, BARRACKSTECHLAB, STARPORTREACTOR, STARPORTTECHLAB, FACTORYTECHLAB, FACTORYREACTOR, \
-MARAUDER, MARINE
+MARAUDER, MARINE, HELLION
 from sc2.game_data import UpgradeData
 from sc2 import position
 from sc2.ids.ability_id import AbilityId
@@ -15,6 +15,19 @@ import random
 
 MAX_WORKERS = 60
 adjusted_time_set = set()
+
+#   To Give Command Attack for Group Of Units  - Should be Improved   
+#   Too much iterations when I applied HELLIONs to explore 
+
+
+
+#   Notes: I got the system overload when I tried to head my HELLION to explore 
+#          the map. And cause is - HELLION changing direction every itaration.
+#          Every iteration(step) HELLION receive new coordinates it's too mush pressure for system
+
+#   Solution:  Add .idle before begin to loop through HELLION
+
+
 
 #   FINDIGN: Found how to reach the game_info.py class Ramp(object)
 #            self.main_base_ramp.top_center
@@ -52,13 +65,15 @@ class NN(sc2.BotAI):
         await self.expand()
         await self.build_barrack()
         await self.build_factory()
-        await self.build_starport()     #   
+        # await self.build_starport()     #   
         await self.improve_barracks()   #   BUILD TECHLAB
         await self.train_soldiers()     #   Train MARAUDER and MARINE
         # await self.train_marauder()
         # await self.train_marine()
         await self.attack_enemy_g()
         # await self.select_target()
+        await self.train_hellion()
+        await self.exploring()
 
 
     def select_target(self):
@@ -71,20 +86,27 @@ class NN(sc2.BotAI):
         #     return target.random.position
 
         # return self.state.mineral_field.random.position
-        print('\n Inside Function ===>', self.enemy_start_locations[0].position)
+        # print('\n Inside Function ===>', self.enemy_start_locations[0].position)
         return self.enemy_start_locations[0].position
 
 
     async def attack_enemy_g(self):
         target = self.select_target()   #   <coroutine object NN.select_target at 0x105ae4258>
-        print('\n TARGET', target)
+        # print('\n TARGET', target)
         # print('\n TARGET POSITION', target.position)
 
-        if self.units(MARAUDER).amount >= 6 and self.units(MARINE).amount >= 7:
+        if self.units(MARAUDER).amount >= 7 and self.units(MARINE).amount >= 10:
             for m in self.units(MARAUDER).idle:
                 await self.do(m.attack(target))
             for mn in self.units(MARINE).idle:
                 await self.do(mn.attack(target))
+        elif self.known_enemy_units.exists:
+            for m in self.units(MARAUDER).idle:
+                # print('\n\t Inside known_enemy_units.exists', self.known_enemy_units)         #   True
+                await self.do(m.attack(self.known_enemy_units.random.position))
+                # print('\n\t RANDOM ENEMY POSITION', self.known_enemy_units.random.position)   #   (150.970458984375, 21.9423828125)
+            for mn in self.units(MARINE).idle:
+                await self.do(mn.attack(self.known_enemy_units.random.position))
 
 
     async def expand(self):
@@ -98,23 +120,49 @@ class NN(sc2.BotAI):
                 await self.expand_now()
 
 
-    async def build_starport(self):
-        cc = self.units(COMMANDCENTER).first
-        if self.units(FACTORY).exists and self.units(STARPORT).amount < 2:
-            if self.can_afford(STARPORT) and not self.already_pending(STARPORT):
-                await self.build(STARPORT, near = cc.position.towards(self.game_info.map_center, 11))
+    # async def build_starport(self):
+    #     cc = self.units(COMMANDCENTER).first
+    #     if self.units(FACTORY).exists and self.units(STARPORT).amount < 2:
+    #         if self.can_afford(STARPORT) and not self.already_pending(STARPORT):
+    #             await self.build(STARPORT, near = cc.position.towards(self.game_info.map_center, 11))
 
 
 
     async def build_factory(self):
         cc = self.units(COMMANDCENTER).first
-        if self.units(BARRACKS).exists:
-            if self.can_afford(FACTORY) and not self.already_pending(FACTORY) and self.units(FACTORY).amount < 1:
+        if self.units(BARRACKS).amount == 2:
+            if self.can_afford(FACTORY) and not self.already_pending(FACTORY) \
+            and self.units(FACTORY).amount < 1 and self.units(MARINE).amount >= 3:
                 await self.build(FACTORY, near = cc.position.towards(self.main_base_ramp.top_center, 7))
         # if self.units(FACTORY).ready:
         #     for f in self.units(FACTORY):
         #         await self.do(f.build(FACTORYREACTOR))
                 # print('\n\n\n Bigan FACTORYREACTOR Building ...')
+
+    async def train_hellion(self):
+        if self.units(FACTORY).ready and self.units(MARINE).amount >= 5:
+            if self.can_afford(HELLION) and not self.already_pending(HELLION):
+                for i in self.units(FACTORY).noqueue:
+                    await self.do(i.train(HELLION))
+                    print('\n Trainin HELLION', i)
+
+############################################################################################
+############################################################################################
+############################################################################################
+#                       Effective solution for exploring the map
+
+#   self.do(h.attack(self.state.mineral_field.random.position))
+
+    async def exploring(self):
+        if self.units(HELLION).amount >=5:
+            for h in self.units(HELLION).idle:
+                await self.do(h.attack(self.state.mineral_field.random.position))
+############################################################################################
+############################################################################################
+############################################################################################
+
+
+
 
     async def build_barrack(self):
         for cc in self.units(COMMANDCENTER).ready:
@@ -123,14 +171,12 @@ class NN(sc2.BotAI):
                     # print('\n\t\t\t\t We are in BUILD BARRACKS method')
                     await self.build(BARRACKS, near = cc.position.towards(self.game_info.map_center, 10))
     
-############################################################################################
 
-    async def improve_barracks(self):
-        if self.units(BARRACKS).ready:
-            for BR in self.units(BARRACKS):
-                if not self.tags:
-                    await self.do(BR.build(BARRACKSTECHLAB))
-                    self.tags.add(BR.tag)
+    async def improve_barracks(self):   
+        for BR in self.units(BARRACKS).ready:
+            if not self.tags:
+                await self.do(BR.build(BARRACKSTECHLAB))
+                self.tags.add(BR.tag)
 
 
     async def train_soldiers(self):
@@ -148,7 +194,6 @@ class NN(sc2.BotAI):
                             await self.do(brlab.train(MARINE))
                             # print('\n Training MARINE: {}'.format(brlab.tag))
 
-############################################################################################
 
     # async def train_marauder(self):
     #     if self.units(BARRACKSTECHLAB).ready:

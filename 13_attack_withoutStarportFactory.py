@@ -222,5 +222,5 @@ class NN(sc2.BotAI):
 
 run_game(maps.get("AbyssalReefLE"), [
     Bot(Race.Terran, NN()),
-    Computer(Race.Terran, Difficulty.Hard)
+    Computer(Race.Terran, Difficulty.Medium)
 ], realtime=False)

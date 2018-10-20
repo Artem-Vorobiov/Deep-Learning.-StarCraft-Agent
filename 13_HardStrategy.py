@@ -29,6 +29,12 @@ adjusted_time_set = set()
         #     key=(lambda r: self.start_location.distance_to(r.top_center))
         # )
 
+
+
+#           NOT SOLVED:
+# 1. StarPort  building placement
+# 2. Attack method 
+
 class NN(sc2.BotAI):
 
     def __init__(self):
@@ -76,13 +82,13 @@ class NN(sc2.BotAI):
         if target.exists:
             return target.random.position
         else:
-            print('\n Inside Function ===>', self.enemy_start_locations[0].position)
+            # print('\n Inside Function ===>', self.enemy_start_locations[0].position)
             return self.enemy_start_locations[0].position
 
 
     async def attack_enemy_g(self):
         target = self.select_target()   #   <coroutine object NN.select_target at 0x105ae4258>
-        print('\n TARGET', target)
+        # print('\n TARGET', target)
         # print('\n TARGET POSITION', target.position)
 
         if self.units(MARAUDER).amount >= 5 and self.units(MARINE).amount >= 7\
@@ -114,10 +120,10 @@ class NN(sc2.BotAI):
         cc = self.units(COMMANDCENTER).first
         if self.units(FACTORY).exists:
             if self.can_afford(STARPORT) and not self.already_pending(STARPORT) and self.units(STARPORT).amount < 1:
-                await self.build(STARPORT, near = cc.position.towards(self.game_info.map_center, 11))
-                if self.units(STARPORT).exists:
-                    for sp in self.units(STARPORT):
-                        await self.do(sp.build(STARPORTTECHLAB)) 
+                await self.build(STARPORT, near = cc.position.towards(self.main_base_ramp.top_center, 10))
+        if self.units(STARPORT).exists:
+            for sp in self.units(STARPORT):
+                await self.do(sp.build(STARPORTTECHLAB)) 
 
 
 
@@ -141,11 +147,16 @@ class NN(sc2.BotAI):
     
 ############################################################################################
 
-    async def improve_barracks(self):   
+    async def improve_barracks(self):
+        print('\n\n\n\n\n') 
+        print('\n Inside')   
         for BR in self.units(BARRACKS).ready:
+            print('\n Into LOOP') 
+            print('\n ITS TAG', self.tags) 
             if not self.tags:
                 await self.do(BR.build(BARRACKSTECHLAB))
                 self.tags.add(BR.tag)
+                print('\n ITS my set', self.tags) 
 
 
 
@@ -153,7 +164,7 @@ class NN(sc2.BotAI):
 
     async def train_soldiers(self):
 
-        if self.units(MARAUDER).amount <= 6 or self.units(MARINE).amount >= 7:
+        if self.units(MARAUDER).amount <= 3 and self.units(MARINE).amount <= 5:
 
             if self.units(BARRACKSTECHLAB).ready:
                 for brlab in self.units(BARRACKS).noqueue:
@@ -169,7 +180,7 @@ class NN(sc2.BotAI):
                                 await self.do(brlab.train(MARINE))
                                 # print('\n Training MARINE: {}'.format(brlab.tag))
 
-        if self.units(HELLION).amount < 3:
+        if self.units(HELLION).amount < 3 or self.units(STARPORT).exists:
 
             if self.units(STARPORTTECHLAB).ready:
                 for sp in self.units(STARPORT).noqueue:
