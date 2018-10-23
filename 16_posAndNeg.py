@@ -36,13 +36,13 @@ class NN(sc2.BotAI):
         print('--- on_end called ---')
         print(game_result)
         if game_result == Result.Victory:
-            # np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
-            print('\n \t\t\t\tDATA', np.array(self.train_data))
-            print('\n \t\t\t\tDATA', (np.array(self.train_data)).shape)
+            np.save("train_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
+            # print('\n \t\t\t\tDATA', np.array(self.train_data))
+            # print('\n \t\t\t\tDATA', (np.array(self.train_data)).shape)
         else:
-            # np.save("negative_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
-            print('\n \t\t\t\tDATA', np.array(self.train_data))
-            print('\n \t\t\t\tDATA', (np.array(self.train_data)).shape)
+            np.save("negative_data/{}.npy".format(str(int(time.time()))), np.array(self.train_data))
+            # print('\n \t\t\t\tDATA', np.array(self.train_data))
+            # print('\n \t\t\t\tDATA', (np.array(self.train_data)).shape)
 
 
     async def on_step(self, iteration):
@@ -97,7 +97,7 @@ class NN(sc2.BotAI):
 
 
         # 1.
-        game_data = np.zeros((self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
+        game_data = np.zeros((1, self.game_info.map_size[1], self.game_info.map_size[0], 3), np.uint8)
 
         # 2. 
         for unit in self.units().ready:
@@ -325,17 +325,17 @@ class NN(sc2.BotAI):
 ############################################################################################
 ############################################################################################
 
-# count = 0
-# while count < 20:
-#     print('\n\n \t\t COUNT = {} \n\n'.format(count))
-#     run_game(maps.get("AbyssalReefLE"), [
-#         Bot(Race.Terran, NN()),
-#         Computer(Race.Terran, Difficulty.Hard)
-#     ], realtime=False)
-#     count += 1
-
-
-run_game(maps.get("AbyssalReefLE"), [
+count = 0
+while count < 10:
+    print('\n\n \t\t COUNT = {} \n\n'.format(count))
+    run_game(maps.get("AbyssalReefLE"), [
         Bot(Race.Terran, NN()),
         Computer(Race.Terran, Difficulty.Hard)
     ], realtime=False)
+    count += 1
+
+
+# run_game(maps.get("AbyssalReefLE"), [
+#         Bot(Race.Terran, NN()),
+#         Computer(Race.Terran, Difficulty.Hard)
+#     ], realtime=False)
