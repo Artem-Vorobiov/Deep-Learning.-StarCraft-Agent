@@ -269,21 +269,21 @@ model = tflearn.DNN(convnet, tensorboard_dir='log')
 train = pos_data[:5]
 test  = pos_data[-5:]
 
-X = [i[0][0][0][0] for i in train]
+X = [i[1] for i in train]
 Y = np.array([i[0][0][0][1] for i in train]).reshape(-1, 176, 200, 1)
 
 # print('\n\t\tSmall Win -- Huge Step\n',X)
 # print(type(X))			#	<class 'list'>
 
-print('\n\t\tSmall Win -- Huge Step\n',Y)
-print(type(Y))				#	<class 'numpy.ndarray'>
+# print('\n\t\tSmall Win -- Huge Step\n',Y)
+# print(type(Y))				#	<class 'numpy.ndarray'>
 
 ##############################################################################################
 ##############################################################################################
 
 # for i in train:
 	# print('\n\n', i) 				# We are into level 2
-	# print('\n\n', i[0]) 			# We are into level 3
+	# print('\n\n', i[1]) 			# We are into level 3
 	# print('\n\n', i[0][0]) 		# We are into level 4
 	# print('\n\n', i[0][0][0])		# We are into level 5
 	# print('\n\n', i[0][0][0][0])	# We are into level 6	[0. 0. 1. 0.]
@@ -293,10 +293,12 @@ print(type(Y))				#	<class 'numpy.ndarray'>
 ##############################################################################################
 ##############################################################################################
 
-test_x = [i[0][0][0][0] for i in test] 
+test_x = [i[1] for i in test] 
 test_y = np.array([i[0][0][0][1] for i in test]).reshape(-1, 176, 200, 1)
 
-model.fit({'input': X}, {'targets': Y}, n_epoch=5, validation_set=({'input': test_x}, {'targets': test_y}), 
-    snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
+print('\n\n Inside TEST_X:', test_x)
 
-model.save(MODEL_NAME)
+# model.fit({'input': X}, {'targets': Y}, n_epoch=5, validation_set=({'input': test_x}, {'targets': test_y}), 
+#     snapshot_step=500, show_metric=True, run_id=MODEL_NAME)
+
+# model.save(MODEL_NAME)
