@@ -24,8 +24,12 @@ You probably want some maps too. Official map downloads are available from [Bliz
 After installing the library, a StarCraft II executable, and some maps, you're ready to get started. Simple bot that follows my strategy you can check it out.
 
 ```
-python3.6 Terran_AI-master/15_intel.py
+python3.6 Terran_AI-master/20_3_predicting.py
 ```
+1. Collect the games required to train the neural network (NN). At the end of the file, it counts the number of games that will be run one after another.
+2. After the games are collected, run the file 18_keras.py to train your model.
+3. Evaluate your model. If needed, collect more games with 20_3_predicting.py or tune the hyperparameters.
+4. Run 20_3_predicting.py with the uploaded model and observe your model fighting against the computer agent.
 
 ### Conclusion
 
