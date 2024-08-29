@@ -33,4 +33,9 @@ python3.6 Terran_AI-master/20_3_predicting.py
 
 ### Conclusion
 
-Last version is   `Terran_AI-master/20_3_predicting.py` we'll be calling it *A*. The second to last version is `Terran_AI-master/20_2_predicting.py` we'll be calling it *B*. The *B* played 92 games and got 25% accuracy. Then I've trained another model based on these 92 games and old model. So, now I'm going to play 92 games with new model and check what accuracy I'll get.
+Last version is   `Terran_AI-master/20_3_predicting.py` we'll be calling it *A*. The second to last version is `Terran_AI-master/20_2_predicting.py` we'll be calling it *B*. The *B* played 92 games and got ~50% accuracy. Then I've trained another model based on these 92 games and old model. So, now I'm going to play 92 games with new model and check what accuracy I'll get.
+
+### Screenshot
+
+<img src="shot1.png" alt="Alt text" width="500" height="350" align="center">
+
